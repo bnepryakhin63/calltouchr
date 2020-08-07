@@ -1,0 +1,8 @@
+export(CalltouchCalls)
+importFrom(httr,POST)
+importFrom(httr,GET)
+importFrom(httr,DELETE)
+importFrom(httr,stop_for_status)
+importFrom(httr,content)
+importFrom(httr,add_headers)
+importFrom(stats, setNames)
