@@ -9,7 +9,7 @@ CalltouchCalls <- function (
   ## Проверка на наличие необходимых параметров
   if (is.null(id) | is.null(token)) {
     stop(
-      "Token or ID is not defined (Токен или ID не указаны)"
+      "Token or ID is not defined"
     )
   }
   ## Настройка опций среды обработки чтобы строки имели класс фактора
@@ -32,29 +32,35 @@ CalltouchCalls <- function (
   ## Парсим полученный ответ
   total <- dataRaw$recordsTotal
 
-  limit <- 12
+  limit <- 1000
   page <- total %/% limit
   offset <- total %% limit
   if (offset == 0) page <- page - 1
   result <- data.frame(stringsAsFactors = F)
-
+  callall <- list()
   ## Создает основной GET запрос к API Колтача для сбора данных
   for (i in 0:page)
   {
-    url <- paste0(server,"calls-service/RestAPI/",id,"/calls-diary/calls?clientApiId=",
-                  token,"&dateFrom=",dateFrom,"&dateTo=",dateTo,"&page=",i+1,"&limit=",limit)
-    answer <- GET(url)
+    url2 <-paste0(server,"calls-service/RestAPI/",id,"/calls-diary/calls?clientApiId=",
+                  token,"&dateFrom=",dateFrom,"&dateTo=",dateTo,"&page=",i+1,"&limit=",limit,"&withCallTags=true")
+    answer <- GET(url2)
     dataRaw <- content(answer)
-    dataRaw <- dataRaw$records
-    if (length(dataRaw) > 0)
-    {
-      column_names <- unlist(lapply(c(names(dataRaw[[1]])), function(x) return(x)))
-      rows <- lapply(dataRaw, function(x) return(x))
-      rows <- setNames(object = data.frame(do.call(rbind, lapply(rows, as.character, unlist))), nm = names(rows[[1]]))
-      rows <- replace(rows, rows=="NULL", NA)
-      result <- rbind(result,rows)
-    }
-    packageStartupMessage(".", appendLF = F)
+    staff_dict <- tibble(first = dataRaw)
+
+    callall <- c(callall, list(staff_dict[5,] %>%
+                                 unnest_longer(employee) %>%
+                                 unnest_wider(employee)
+    ))
+
   }
-  return(result)
+  callall <- bind_rows(callall)
+
+  try(callall <- callall %>%
+        unnest_longer(callTags)%>%
+        unnest_wider(callTags)%>%
+        select(-category, -type)%>%
+        unnest_longer(names)%>%
+        rename(callTags=names), silent = T)
+
+  return(callall)
 }
