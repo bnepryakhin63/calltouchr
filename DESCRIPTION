@@ -11,8 +11,9 @@ Depends: R (>= 3.6.0)
 Imports: stringr, 
          httr,
          stats,
+         tidyr (>= 1.0.0),
     		 dplyr
-Description: Package for downloading data on calls and their effectiveness from the service calltouch.ru.
+Description: Пакет R для загрузки данных из системы колтрекинга Calltouch.ru. Package for downloading data on calls and their effectiveness from the service calltouch.ru.
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
