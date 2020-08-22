@@ -13,48 +13,52 @@ knitr::opts_chunk$set(
 )
 ```
 
-# calltouchr www
+# calltouchr - пакет для работы с API Calltouch
 
 <!-- badges: start -->
 <!-- badges: end -->
+### Бейджи
+[![](https://cranlogs.r-pkg.org/badges/calltouchr)](https://cran.r-project.org/package=calltouchr)
 
-The goal of calltouchr is to ...
+## Краткое описание.
+Пакет ryandexdirect предназначен для загрузки данных из сервиса колтрекинга Calltouch в R, с помощью функций данного пакета вы можете работать с перечисленными ниже сервисами и службами API Calltouch, не углубляясь при этом в документацию по работе с этими API сервисами.
 
-## Installation
++ [CalltouchCalls](https://support.calltouch.ru/hc/ru/articles/209231269-Управление-звонками-через-API) - Предназначен для получения запросов данных о звонках и их сбора статистики по всему ID аккаунту пользователя calltouch. В данной функции собираются по умолчанию проставляемые Тэги-разметки из журнала звонков. withCallTags=true - по умолчанию
 
-You can install the released version of calltouchr from [CRAN](https://CRAN.R-project.org) with:
+Главная задача пакета - это выгрузка всех данных из ID аккаунта. Передача данных в calltouch пока не реализована в рамках данного пакета.
 
-``` r
-install.packages("calltouchr")
+## Установка
+
+Установить dev версию можно из репозитория GitHub, для этого сначала требуется установить и подключить пакет devtools.
+
+```r
+install.packages("devtools")
+devtools::install_github('bnepryakhin63/calltouchr')
 ```
 
-And the development version from [GitHub](https://github.com/) with:
+### Пример использования
 
-``` r
-# install.packages("devtools")
-devtools::install_github("bnepryakhin63/calltouchr")
+В пакете пока реализована только 1 функция, но она полноценно закрывает все потребности по выгрузке данных по звонкам из calltouch
+
+```r
+Calls <- CalltouchCalls(
+                    dateFrom = Sys.Date() - 31 ,
+                    dateTo = Sys.Date() - 1,
+                    id <- "3****",
+                    server <- "https://api-**********.ru/",
+                    token <- "e***************aej")
+
 ```
-## Example
+dateFrom - Дата начиная с которой должны собираться данные
+dateTo - Дата до которой должны собираться данные
+id - ID из кабинета calltouch
+server <-  имя сервера из кабинета calltouch
+token <-  Токен из кабинета calltouch
 
-This is a basic example which shows you how to solve a common problem:
+### Ссылки
+1. Баг репорты, предложения по доработке и улучшению функционала calltouchr оставлять [тут>>](https://github.com/bnepryakhin63/calltouchr/issues). 
+2. [Список релизов](https://github.com/bnepryakhin63/calltouchr/releases).
+3. [Если есть вопросы пишите в telegram](https://t.me/Bogdann63).
 
-```{r example}
-library(calltouchr)
-## basic example code
-```
-
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-```{r cars}
-summary(cars)
-```
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date.
-
-You can also embed plots, for example:
-
-```{r pressure, echo = FALSE}
-plot(pressure)
-```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub!
+### Автор пакета
+Непряхин Богдан
