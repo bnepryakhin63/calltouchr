@@ -45,11 +45,11 @@ CalltouchCalls <- function (
                   token,"&dateFrom=",dateFrom,"&dateTo=",dateTo,"&page=",i+1,"&limit=",limit,"&withCallTags=true")
     answer <- GET(url2)
     dataRaw <- content(answer)
-    staff_dict <- tibble(first = dataRaw)
+    staff_dict <- tibble(firstdatac = dataRaw)
 
     callall <- c(callall, list(staff_dict[5,] %>%
-                                 unnest_longer(employee) %>%
-                                 unnest_wider(employee)
+                                 unnest_longer(firstdatac) %>%
+                                 unnest_wider(firstdatac)
     ))
 
   }
