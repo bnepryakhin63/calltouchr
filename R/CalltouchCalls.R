@@ -12,13 +12,6 @@ CalltouchCalls <- function (
       "Token or ID is not defined"
     )
   }
-  ## Настройка опций среды обработки чтобы строки имели класс фактора
-  if (getOption("stringsAsFactors") == TRUE) {
-    string_as_factor <- "change"
-    options(stringsAsFactors = F)
-  } else {
-    string_as_factor <- "no change"
-  }
   ## Задаем единый формат дат для стартовой и конечной даты
   dateFrom <- format.Date(dateFrom, "%d/%m/%Y")
   dateTo <- format.Date(dateTo, "%d/%m/%Y")
