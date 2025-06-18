@@ -5,6 +5,15 @@ CalltouchLeads <- function(
     server = NULL,
     token = NULL
 ) {
+
+
+  dateFrom = first_date
+  dateTo = end_date
+  id = id_ngc
+  server = server4
+  token = token_ngc
+
+
   proc_start <- Sys.time()  # Сохраняем время начала выполнения
 
   # Проверка обязательных параметров
@@ -13,8 +22,8 @@ CalltouchLeads <- function(
   }
 
   # Преобразуем даты в нужный формат
-  dateFrom <- format(as.Date(dateFrom), "%d/%m/%Y")
-  dateTo <- format(as.Date(dateTo), "%d/%m/%Y")
+  dateFrom <- format(as.Date(dateFrom), "%m/%d/%Y")
+  dateTo <- format(as.Date(dateTo), "%m/%d/%Y")
 
   # Удаляем слэш на конце адреса сервера, если он есть
   server <- sub("/$", "", server)
@@ -79,3 +88,11 @@ CalltouchLeads <- function(
 
   return(leads_df)
 }
+
+
+stat_calltouch_leads <- CalltouchLeads(
+  dateFrom = first_date ,
+  dateTo = end_date,
+  id = id_ngc,
+  server = server4,
+  token = token_ngc)
