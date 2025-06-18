@@ -1,4 +1,5 @@
 export(CalltouchCalls)
+export(CalltouchLeads)
 importFrom(httr,POST)
 importFrom(httr,GET)
 importFrom(httr,DELETE)
