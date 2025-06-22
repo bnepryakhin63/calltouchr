@@ -1,4 +1,4 @@
-CalltouchLeads2 <- function(
+CalltouchLeads <- function(
     dateFrom = NULL,
     dateTo = NULL,
     id = NULL,
