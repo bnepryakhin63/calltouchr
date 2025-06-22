@@ -1,19 +1,9 @@
-CalltouchLeads <- function(
+CalltouchLeads2 <- function(
     dateFrom = NULL,
     dateTo = NULL,
     id = NULL,
-    server = NULL,
     token = NULL
 ) {
-
-
-  dateFrom = first_date
-  dateTo = end_date
-  id = id_ngc
-  server = server4
-  token = token_ngc
-
-
   proc_start <- Sys.time()  # Сохраняем время начала выполнения
 
   # Проверка обязательных параметров
@@ -25,13 +15,9 @@ CalltouchLeads <- function(
   dateFrom <- format(as.Date(dateFrom), "%m/%d/%Y")
   dateTo <- format(as.Date(dateTo), "%m/%d/%Y")
 
-  # Удаляем слэш на конце адреса сервера, если он есть
-  server <- sub("/$", "", server)
-
   # Формируем URL для запроса
   url <- paste0(
-    server,
-    "/calls-service/RestAPI/requests/?clientApiId=", token,
+    "https://api.calltouch.ru/calls-service/RestAPI/requests/?clientApiId=", token,
     "&siteId=", id,
     "&dateFrom=", dateFrom,
     "&dateTo=", dateTo,
@@ -88,11 +74,3 @@ CalltouchLeads <- function(
 
   return(leads_df)
 }
-
-
-stat_calltouch_leads <- CalltouchLeads(
-  dateFrom = first_date ,
-  dateTo = end_date,
-  id = id_ngc,
-  server = server4,
-  token = token_ngc)
