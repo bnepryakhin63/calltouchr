@@ -2,7 +2,6 @@ CalltouchCalls <- function (
   dateFrom = Sys.Date() - 31 ,
   dateTo = Sys.Date() - 1,
   id = NULL,
-  server = NULL,
   token = NULL)
 {
   proc_start <- Sys.time()
@@ -17,7 +16,7 @@ CalltouchCalls <- function (
   dateTo <- format.Date(dateTo, "%d/%m/%Y")
 
   ## Создает первичный GET запрос к API Колтача для того чтобы понять количество страниц с данными
-  url <- paste0(server,"calls-service/RestAPI/",id,"/calls-diary/calls?clientApiId=",
+  url <- paste0("https://api.calltouch.ru/calls-service/RestAPI/",id,"/calls-diary/calls?clientApiId=",
                 token,"&dateFrom=",dateFrom,"&dateTo=",dateTo,"&page=1&limit=10")
   answer <- GET(url)
   dataRaw <- content(answer)
@@ -34,7 +33,7 @@ CalltouchCalls <- function (
   ## Создает основной GET запрос к API Колтача для сбора данных
   for (i in 0:page)
   {
-    url2 <-paste0(server,"calls-service/RestAPI/",id,"/calls-diary/calls?clientApiId=",
+    url2 <-paste0("https://api.calltouch.ru/calls-service/RestAPI/",id,"/calls-diary/calls?clientApiId=",
                   token,"&dateFrom=",dateFrom,"&dateTo=",dateTo,"&page=",i+1,"&limit=",limit,"&withCallTags=true")
     answer <- GET(url2)
     dataRaw <- content(answer)
