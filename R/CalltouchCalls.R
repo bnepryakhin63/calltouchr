@@ -5,12 +5,6 @@ CalltouchCalls <- function(
     token    = NULL,
     sleep    = 0.2
 ) {
-  library(httr2)
-  library(dplyr)
-  library(tidyr)
-  library(cli)
-  library(lubridate)
-
   if (is.null(id) || is.null(token)) stop("❌ Token or ID is not defined")
 
   # Разбиваем период на месяцы, чтобы не перегружать API
@@ -25,7 +19,6 @@ CalltouchCalls <- function(
     end   <- seq_months[i + 1] - 1
     if (end > as.Date(dateTo)) end <- as.Date(dateTo)
 
-    # Формат дат для API
     dateFrom_fmt <- format(start, "%d/%m/%Y")
     dateTo_fmt   <- format(end, "%d/%m/%Y")
 
@@ -72,7 +65,9 @@ CalltouchCalls <- function(
           # Безопасная распаковка callTags
           if ("callTags" %in% names(tmp)) {
             tmp$callTags <- lapply(tmp$callTags, function(x) {
-              if (is.list(x)) paste(unlist(x), collapse = ";") else as.character(x)
+              if (is.list(x)) paste(unlist(x), collapse = ";")
+              else if (is.atomic(x)) as.character(x)
+              else ""
             })
           }
 
