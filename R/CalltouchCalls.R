@@ -1,5 +1,5 @@
-CalltouchCalls <- function (
-    dateFrom = Sys.Date() - 31 ,
+CalltouchCalls <- function(
+    dateFrom = Sys.Date() - 31,
     dateTo   = Sys.Date() - 1,
     id       = NULL,
     token    = NULL,
@@ -7,45 +7,41 @@ CalltouchCalls <- function (
 ) {
   proc_start <- Sys.time()
 
-  if (is.null(id) | is.null(token)) {
-    stop("❌ Token or ID is not defined")
-  }
+  if (is.null(id) || is.null(token)) stop("❌ Token or ID is not defined")
 
   # Формат дат
-  dateFrom <- format.Date(as.Date(dateFrom), "%d/%m/%Y")
-  dateTo   <- format.Date(as.Date(dateTo),   "%d/%m/%Y")
+  dateFrom <- format(as.Date(dateFrom), "%d/%m/%Y")
+  dateTo   <- format(as.Date(dateTo),   "%d/%m/%Y")
 
   base_url <- paste0("https://api.calltouch.ru/calls-service/RestAPI/", id, "/calls-diary/calls")
 
-  # Первичный запрос
-  resp0 <- request(base_url) |>
-    req_url_query(
+  # Первичный запрос для определения количества записей
+  resp0 <- httr2::request(base_url) |>
+    httr2::req_url_query(
       clientApiId = token,
       dateFrom = dateFrom,
-      dateTo = dateTo,
+      dateTo   = dateTo,
       page = 1,
       limit = 1
     ) |>
-    req_perform()
+    httr2::req_perform()
 
-  if (resp_status(resp0) != 200) {
-    stop("❌ Ошибка: HTTP ", resp_status(resp0))
-  }
+  if (httr2::resp_status(resp0) != 200) stop("❌ Ошибка: HTTP ", httr2::resp_status(resp0))
 
-  total <- resp_body_json(resp0, simplifyVector = TRUE)$recordsTotal
+  total <- httr2::resp_body_json(resp0, simplifyVector = TRUE)$recordsTotal
   limit <- 1000
   pages <- ceiling(total / limit)
 
   message("🔎 Найдено записей: ", total, " (страниц: ", pages, ")")
 
   # Прогресс-бар
-  pb <- cli_progress_bar("Загрузка", total = pages, format = "{cli::pb_bar} {cli::pb_percent} {n}/{total}")
+  pb <- cli::cli_progress_bar("Загрузка", total = pages, format = "{cli::pb_bar} {cli::pb_percent} {n}/{total}")
 
   all_data <- list()
 
   for (page in 1:pages) {
-    resp <- request(base_url) |>
-      req_url_query(
+    resp <- httr2::request(base_url) |>
+      httr2::req_url_query(
         clientApiId = token,
         dateFrom = dateFrom,
         dateTo   = dateTo,
@@ -53,44 +49,37 @@ CalltouchCalls <- function (
         limit    = limit,
         withCallTags = "true"
       ) |>
-      req_perform()
+      httr2::req_perform()
 
-    if (resp_status(resp) == 200) {
-      dat <- resp_body_json(resp, simplifyVector = TRUE)
+    if (httr2::resp_status(resp) == 200) {
+      dat <- httr2::resp_body_json(resp, simplifyVector = TRUE)
       if (!is.null(dat$records) && length(dat$records) > 0) {
-        all_data[[page]] <- as_tibble(dat$records)
+        all_data[[page]] <- tibble::as_tibble(dat$records)
       }
     }
 
-    cli_progress_update(pb, set = page)
-
+    cli::cli_progress_update(pb, set = page)
     if (sleep > 0) Sys.sleep(sleep)
   }
 
-  cli_progress_done(pb)
+  cli::cli_progress_done(pb)
 
-  callall <- bind_rows(all_data)
+  callall <- dplyr::bind_rows(all_data)
 
-  # Распаковка тегов (безопасная версия)
+  # Безопасная распаковка callTags
   if ("callTags" %in% names(callall)) {
-    callall <- callall %>%
-      unnest_longer(callTags, keep_empty = TRUE) %>%
-      unnest_wider(callTags, names_sep = "_")
+    callall <- callall |>
+      tidyr::unnest_longer(callTags, keep_empty = TRUE) |>
+      tidyr::unnest_wider(callTags, names_sep = "_")
 
-    # Удаляем лишние колонки, если они есть
     drop_cols <- intersect(c("category", "type"), names(callall))
-    if (length(drop_cols) > 0) {
-      callall <- select(callall, -all_of(drop_cols))
-    }
+    if (length(drop_cols) > 0) callall <- dplyr::select(callall, -dplyr::all_of(drop_cols))
 
-    # Переименовываем, если есть поле с именами
     name_cols <- grep("^callTags_names", names(callall), value = TRUE)
-    if (length(name_cols) > 0) {
-      callall <- rename(callall, callTags = !!sym(name_cols[1]))
-    }
+    if (length(name_cols) > 0) callall <- dplyr::rename(callall, callTags = !!rlang::sym(name_cols[1]))
   }
 
-  ## Оставляем только нужные поля
+  # Оставляем только нужные колонки
   keep_cols <- c(
     "date", "city", "uniqueCall", "source", "medium", "duration", "ref",
     "waitingConnect", "ctCallerId", "callbackCall", "keyword", "successful",
